@@ -3,8 +3,9 @@ import HeroBanner from "../components/HeroBanner";
 import ContentRow from "../components/ContentRow";
 import MovieCard from "../components/MovieCard";
 import SeriesCard from "../components/SeriesCard";
+import LiveTvChannelCard from "../components/LiveTvChannelCard";
 import ContinueWatchingRow from "../components/ContinueWatchingRow";
-import { Movie, Series } from "../types";
+import { Movie, Series, LiveTvChannel } from "../types";
 
 export const dynamic = "force-dynamic";
 
@@ -12,11 +13,12 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/a
 
 async function getHomeData() {
   try {
-    const [featuredRes, moviesRes, seriesRes, southRes] = await Promise.all([
+    const [featuredRes, moviesRes, seriesRes, southRes, liveRes] = await Promise.all([
       fetch(`${API_BASE_URL}/movies/featured`, { cache: "no-store" }).then((r) => r.json()),
       fetch(`${API_BASE_URL}/movies?limit=12`, { cache: "no-store" }).then((r) => r.json()),
       fetch(`${API_BASE_URL}/series?limit=12`, { cache: "no-store" }).then((r) => r.json()),
       fetch(`${API_BASE_URL}/movies?genre=south-indian&limit=12`, { cache: "no-store" }).then((r) => r.json()),
+      fetch(`${API_BASE_URL}/live-tv/featured`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ data: [] })),
     ]);
 
     return {
@@ -24,15 +26,16 @@ async function getHomeData() {
       movies: (moviesRes?.data || []) as Movie[],
       series: (seriesRes?.data || []) as Series[],
       southMovies: (southRes?.data || []) as Movie[],
+      liveChannels: (liveRes?.data || []) as LiveTvChannel[],
     };
   } catch (error) {
     console.error("Failed to load home data:", error);
-    return { featured: [], movies: [], series: [], southMovies: [] };
+    return { featured: [], movies: [], series: [], southMovies: [], liveChannels: [] };
   }
 }
 
 export default async function HomePage() {
-  const { featured, movies, series, southMovies } = await getHomeData();
+  const { featured, movies, series, southMovies, liveChannels } = await getHomeData();
   const spotlightMovie = featured[0] || movies[0];
 
   // Filter Bangla originals
@@ -50,6 +53,19 @@ export default async function HomePage() {
 
       {/* 2. Continue Watching (Client Session Driven) */}
       <ContinueWatchingRow />
+
+      {/* Live TV Channels Row */}
+      {liveChannels.length > 0 && (
+        <ContentRow
+          title="Live Television & Sports"
+          subtitle="Bufferless BDIX live broadcast with direct stream switching"
+          viewAllHref="/live"
+        >
+          {liveChannels.map((c) => (
+            <LiveTvChannelCard key={c.id} channel={c} />
+          ))}
+        </ContentRow>
+      )}
 
       {/* 3. Trending Movies Carousel */}
       {movies.length > 0 && (

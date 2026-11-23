@@ -13,6 +13,7 @@ import favoriteRoutes from "./favorite.routes";
 import ratingRoutes from "./rating.routes";
 import adminRoutes from "./admin.routes";
 import libraryRoutes from "./library.routes";
+import liveTvRoutes from "./livetv.routes";
 import prisma from "../prisma/client";
 
 const router = Router();
@@ -85,6 +86,7 @@ router.use("/watchlist", watchlistRoutes);
 router.use("/favorites", favoriteRoutes);
 router.use("/ratings", ratingRoutes);
 router.use("/admin", adminRoutes);
+router.use("/live-tv", liveTvRoutes);
 
 // Compatibility fallback
 router.use("/library", libraryRoutes);

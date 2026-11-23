@@ -37,6 +37,7 @@ export default function Navbar() {
     { name: "Movies", href: "/movies" },
     { name: "South Indian", href: "/movies?genre=south-indian" },
     { name: "TV Series", href: "/series" },
+    { name: "Live TV", href: "/live", isLive: true },
     { name: "My Library", href: "/library" },
   ];
 
@@ -73,11 +74,22 @@ export default function Navbar() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-sm font-medium transition-colors hover:text-white ${
+                  className={`text-sm font-medium transition-colors hover:text-white flex items-center space-x-1.5 ${
                     isActive ? "text-white font-semibold" : "text-cinema-muted"
                   }`}
                 >
-                  {link.name}
+                  {link.isLive && (
+                    <span className="relative flex h-2 w-2 mr-0.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                  )}
+                  <span>{link.name}</span>
+                  {link.isLive && (
+                    <span className="text-[9px] font-extrabold tracking-wider uppercase bg-red-500/20 text-red-400 border border-red-500/30 px-1 rounded">
+                      LIVE
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -227,9 +239,15 @@ export default function Navbar() {
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-base font-medium text-slate-200 hover:bg-cinema-800"
+                className="flex items-center justify-between px-3 py-2 rounded-lg text-base font-medium text-slate-200 hover:bg-cinema-800"
               >
-                {link.name}
+                <span>{link.name}</span>
+                {link.isLive && (
+                  <span className="flex items-center space-x-1 text-[10px] font-bold text-red-400 bg-red-500/20 px-2 py-0.5 rounded-full border border-red-500/30">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                    <span>LIVE</span>
+                  </span>
+                )}
               </Link>
             ))}
             {user && (user.role === "SUPER_ADMIN" || user.role === "ADMIN") && (

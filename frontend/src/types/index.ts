@@ -131,3 +131,25 @@ export interface User {
   role: "SUPER_ADMIN" | "ADMIN" | "CONTENT_MANAGER" | "MODERATOR" | "USER";
   avatar?: string | null;
 }
+
+export interface LiveTvChannel {
+  id: string;
+  name: string;
+  slug: string;
+  logo: string | null;
+  streamUrl: string;
+  backupUrl: string | null;
+  category: string;
+  channelNumber?: number | null;
+  quality?: string | null;
+  status: string;
+  isFeatured: boolean;
+  sourceRepo?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface LiveCategory {
+  name: string;
+  count: number;
+}
