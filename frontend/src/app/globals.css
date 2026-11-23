@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cinema-950 text-slate-100 antialiased selection:bg-cinema-red selection:text-white;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #06090e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Hide scrollbar for carousel rows while maintaining scrollability */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Video.js Dark Cinema Styling Overrides */
+.video-js {
+  font-family: inherit !important;
+  color: #f8fafc !important;
+}
+
+.video-js .vjs-big-play-button {
+  background-color: rgba(229, 9, 20, 0.85) !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 72px !important;
+  height: 72px !important;
+  line-height: 72px !important;
+  margin-top: -36px !important;
+  margin-left: -36px !important;
+  transition: transform 0.2s ease, background-color 0.2s ease !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.video-js:hover .vjs-big-play-button {
+  background-color: #f40612 !important;
+  transform: scale(1.1) !important;
+}
+
+.video-js .vjs-control-bar {
+  background: linear-gradient(to top, rgba(6, 9, 14, 0.95), rgba(6, 9, 14, 0)) !important;
+  height: 56px !important;
+  padding: 0 12px !important;
+}
+
+.video-js .vjs-play-progress {
+  background-color: #e50914 !important;
+}
+
+.video-js .vjs-slider {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.video-js .vjs-load-progress {
+  background-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.video-js.vjs-fluid {
+  border-radius: 1rem;
+}
+
+.video-js video {
+  object-fit: contain;
+  border-radius: 1rem;
+}

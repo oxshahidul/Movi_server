@@ -1,0 +1,337 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleType {
+  SUPER_ADMIN
+  ADMIN
+  CONTENT_MANAGER
+  MODERATOR
+  USER
+}
+
+enum ContentType {
+  MOVIE
+  SERIES
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model User {
+  id           String         @id @default(uuid())
+  name         String
+  email        String         @unique
+  password     String
+  avatar       String?        @db.VarChar(500)
+  role         RoleType       @default(USER)
+  status       String         @default("ACTIVE") // ACTIVE, SUSPENDED, PENDING
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  watchHistory WatchHistory[]
+  watchlists   Watchlist[]
+  favorites    Favorite[]
+  ratings      Rating[]
+  settings     UserSettings?
+  auditLogs    AuditLog[]
+
+  @@map("users")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?  @db.VarChar(255)
+
+  @@map("roles")
+}
+
+model Movie {
+  id          String        @id @default(uuid())
+  title       String        @db.VarChar(255)
+  slug        String        @unique @db.VarChar(255)
+  description String?       @db.Text
+  poster      String?       @db.VarChar(500)
+  backdrop    String?       @db.VarChar(500)
+  trailerUrl  String?       @map("trailer_url") @db.VarChar(500)
+  releaseYear Int?          @map("release_year")
+  runtime     Int?          // in minutes
+  rating      Decimal?      @default(0.0) @db.Decimal(3, 1)
+  language    String?       @default("English") @db.VarChar(50)
+  status      ContentStatus @default(PUBLISHED)
+  publishedAt DateTime?     @map("published_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  genres       MovieGenre[]
+  cast         ContentCast[]
+  videoSources VideoSource[]
+  subtitles    Subtitle[]
+
+  @@index([slug])
+  @@index([releaseYear])
+  @@index([status])
+  @@map("movies")
+}
+
+model Series {
+  id          String        @id @default(uuid())
+  title       String        @db.VarChar(255)
+  slug        String        @unique @db.VarChar(255)
+  description String?       @db.Text
+  poster      String?       @db.VarChar(500)
+  backdrop    String?       @db.VarChar(500)
+  trailerUrl  String?       @map("trailer_url") @db.VarChar(500)
+  releaseYear Int?          @map("release_year")
+  rating      Decimal?      @default(0.0) @db.Decimal(3, 1)
+  status      ContentStatus @default(PUBLISHED)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  seasons     Season[]
+  genres      SeriesGenre[]
+  cast        ContentCast[]
+
+  @@index([slug])
+  @@index([status])
+  @@map("series")
+}
+
+model Season {
+  id           String    @id @default(uuid())
+  seriesId     String    @map("series_id")
+  seasonNumber Int       @map("season_number")
+  title        String    @db.VarChar(255)
+  description  String?   @db.Text
+  poster       String?   @db.VarChar(500)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  series       Series    @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  episodes     Episode[]
+
+  @@unique([seriesId, seasonNumber])
+  @@index([seriesId])
+  @@map("seasons")
+}
+
+model Episode {
+  id            String        @id @default(uuid())
+  seasonId      String        @map("season_id")
+  title         String        @db.VarChar(255)
+  slug          String        @unique @db.VarChar(255)
+  episodeNumber Int           @map("episode_number")
+  description   String?       @db.Text
+  thumbnail     String?       @db.VarChar(500)
+  runtime       Int?          // in minutes
+  releaseDate   DateTime?     @map("release_date")
+  status        ContentStatus @default(PUBLISHED)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  season        Season        @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  videoSources  VideoSource[]
+  subtitles     Subtitle[]
+
+  @@unique([seasonId, episodeNumber])
+  @@index([seasonId])
+  @@map("episodes")
+}
+
+model Genre {
+  id     Int           @id @default(autoincrement())
+  name   String        @unique @db.VarChar(100)
+  slug   String        @unique @db.VarChar(100)
+
+  movies MovieGenre[]
+  series SeriesGenre[]
+
+  @@map("genres")
+}
+
+model MovieGenre {
+  movieId String @map("movie_id")
+  genreId Int    @map("genre_id")
+
+  movie   Movie  @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([movieId, genreId])
+  @@index([genreId])
+  @@map("movie_genres")
+}
+
+model SeriesGenre {
+  seriesId String @map("series_id")
+  genreId  Int    @map("genre_id")
+
+  series   Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  genre    Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+
+  @@id([seriesId, genreId])
+  @@index([genreId])
+  @@map("series_genres")
+}
+
+model Cast {
+  id        String        @id @default(uuid())
+  name      String        @db.VarChar(255)
+  image     String?       @db.VarChar(500)
+  biography String?       @db.Text
+
+  roles     ContentCast[]
+
+  @@map("cast")
+}
+
+model ContentCast {
+  id            String   @id @default(uuid())
+  castId        String   @map("cast_id")
+  movieId       String?  @map("movie_id")
+  seriesId      String?  @map("series_id")
+  characterName String?  @map("character_name") @db.VarChar(255)
+
+  cast          Cast     @relation(fields: [castId], references: [id], onDelete: Cascade)
+  movie         Movie?   @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  series        Series?  @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@index([castId])
+  @@index([movieId])
+  @@index([seriesId])
+  @@map("content_cast")
+}
+
+model VideoSource {
+  id          String      @id @default(uuid())
+  contentType ContentType @map("content_type")
+  movieId     String?     @map("movie_id")
+  episodeId   String?     @map("episode_id")
+  sourceName  String      @map("source_name") @db.VarChar(100) // e.g. "Server 1 (HLS)", "Fast BDIX CDN"
+  sourceUrl   String      @map("source_url") @db.VarChar(1000)
+  quality     String?     @default("1080p") @db.VarChar(50)    // "4K", "1080p", "720p", "Auto"
+  format      String      @default("HLS") @db.VarChar(50)      // "HLS", "MP4", "EMBED"
+  status      String      @default("ACTIVE") @db.VarChar(50)
+
+  movie       Movie?      @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  episode     Episode?    @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  @@index([movieId])
+  @@index([episodeId])
+  @@map("video_sources")
+}
+
+model Subtitle {
+  id          String      @id @default(uuid())
+  contentType ContentType @map("content_type")
+  movieId     String?     @map("movie_id")
+  episodeId   String?     @map("episode_id")
+  language    String      @db.VarChar(50)                      // e.g. "English", "Bengali"
+  subtitleUrl String      @map("subtitle_url") @db.VarChar(1000)
+  format      String      @default("VTT") @db.VarChar(50)      // "VTT", "SRT"
+
+  movie       Movie?      @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  episode     Episode?    @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  @@index([movieId])
+  @@index([episodeId])
+  @@map("subtitles")
+}
+
+model WatchHistory {
+  id              String      @id @default(uuid())
+  userId          String      @map("user_id")
+  contentType     ContentType @map("content_type")
+  contentId       String      @map("content_id")               // movieId or seriesId
+  episodeId       String?     @map("episode_id")
+  progressSeconds Int         @default(0) @map("progress_seconds")
+  durationSeconds Int         @default(0) @map("duration_seconds")
+  lastWatchedAt   DateTime    @default(now()) @updatedAt @map("last_watched_at")
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentId, episodeId])
+  @@index([userId])
+  @@index([lastWatchedAt])
+  @@map("watch_history")
+}
+
+model Watchlist {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  contentType ContentType @map("content_type")
+  contentId   String      @map("content_id")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentId])
+  @@index([userId])
+  @@map("watchlists")
+}
+
+model Favorite {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  contentType ContentType @map("content_type")
+  contentId   String      @map("content_id")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentId])
+  @@index([userId])
+  @@map("favorites")
+}
+
+model Rating {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  contentType ContentType @map("content_type")
+  contentId   String      @map("content_id")
+  rating      Int         // 1 to 10
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentId])
+  @@index([userId])
+  @@map("ratings")
+}
+
+model UserSettings {
+  id                String  @id @default(uuid())
+  userId            String  @unique @map("user_id")
+  autoplay          Boolean @default(true)
+  preferredQuality  String  @default("1080p") @map("preferred_quality")
+  preferredLanguage String  @default("English") @map("preferred_language")
+  subtitleLanguage  String? @default("English") @map("subtitle_language")
+
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String   @db.VarChar(100)
+  entityType String   @map("entity_type") @db.VarChar(100)
+  entityId   String?  @map("entity_id") @db.VarChar(100)
+  details    String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
