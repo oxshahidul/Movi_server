@@ -335,3 +335,25 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
+
+model LiveTvChannel {
+  id            String   @id @default(uuid())
+  name          String   @db.VarChar(255)
+  slug          String   @unique @db.VarChar(255)
+  logo          String?  @db.VarChar(500)
+  streamUrl     String   @map("stream_url") @db.VarChar(1000)
+  backupUrl     String?  @map("backup_url") @db.VarChar(1000)
+  category      String   @db.VarChar(100) // "Bangladesh", "Sports", "Indian Bangla", "Movies", "News", "Kids", "Entertainment", "Religious", "International"
+  channelNumber Int?     @map("channel_number")
+  quality       String?  @default("HD") @db.VarChar(50)
+  status        String   @default("ACTIVE") @db.VarChar(50)
+  isFeatured    Boolean  @default(false) @map("is_featured")
+  sourceRepo    String?  @map("source_repo") @db.VarChar(100)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@index([status])
+  @@index([slug])
+  @@map("live_tv_channels")
+}
