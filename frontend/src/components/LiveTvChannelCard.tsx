@@ -1,6 +1,8 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
-import { Tv, Play } from "lucide-react";
+import { Tv } from "lucide-react";
 import { LiveTvChannel } from "../types";
 
 interface LiveTvChannelCardProps {
@@ -8,6 +10,8 @@ interface LiveTvChannelCardProps {
 }
 
 export default function LiveTvChannelCard({ channel }: LiveTvChannelCardProps) {
+  const [hasImgError, setHasImgError] = useState(false);
+
   return (
     <Link
       href="/live"
@@ -22,15 +26,13 @@ export default function LiveTvChannelCard({ channel }: LiveTvChannelCardProps) {
 
         {/* Channel Logo */}
         <div className="w-12 h-12 flex items-center justify-center mb-1">
-          {channel.logo ? (
+          {channel.logo && !hasImgError ? (
             <img
               src={channel.logo}
               alt={channel.name}
               className="max-h-full max-w-full object-contain filter group-hover:brightness-110"
               loading="lazy"
-              onError={(e) => {
-                (e.target as HTMLElement).style.display = "none";
-              }}
+              onError={() => setHasImgError(true)}
             />
           ) : (
             <Tv className="w-7 h-7 text-cinema-muted" />

@@ -1,10 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { Tv, Search, Play, RefreshCw, AlertCircle, Radio, Sparkles, Check, ChevronRight } from "lucide-react";
-import videojs from "video.js";
-import "video.js/dist/video-js.css";
+import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import { Tv, Search, Play, RefreshCw, Sparkles, Check, Loader2 } from "lucide-react";
 import { LiveTvChannel, LiveCategory } from "../../types";
+
+const LivePlayer = dynamic(() => import("../../components/LivePlayer"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full aspect-video bg-black flex items-center justify-center text-cinema-muted">
+      <Loader2 className="w-8 h-8 animate-spin text-cinema-red" />
+    </div>
+  ),
+});
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
@@ -16,10 +24,6 @@ export default function LiveTvPage() {
   const [activeChannel, setActiveChannel] = useState<LiveTvChannel | null>(null);
   const [isUsingBackup, setIsUsingBackup] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [playerError, setPlayerError] = useState<string | null>(null);
-
-  const videoRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<any>(null);
 
   // Fetch initial channel & category list
   useEffect(() => {
@@ -64,101 +68,12 @@ export default function LiveTvPage() {
     return matchesCategory && matchesSearch;
   });
 
-  // Switch stream source
-  const currentStreamUrl = activeChannel
-    ? isUsingBackup && activeChannel.backupUrl
-      ? activeChannel.backupUrl
-      : activeChannel.streamUrl
-    : "";
-
-  // Initialize or update Video.js player
-  useEffect(() => {
-    if (!videoRef.current || !activeChannel || !currentStreamUrl) return;
-
-    setPlayerError(null);
-
-    // If player exists, update source
-    if (playerRef.current) {
-      playerRef.current.src({
-        src: currentStreamUrl,
-        type: "application/x-mpegURL",
-      });
-      playerRef.current.play().catch(() => {});
-      return;
-    }
-
-    // Create fresh video element
-    const videoElement = document.createElement("video-js");
-    videoElement.classList.add("vjs-big-play-centered", "vjs-theme-sea");
-    videoRef.current.innerHTML = "";
-    videoRef.current.appendChild(videoElement);
-
-    const player = (playerRef.current = videojs(
-      videoElement,
-      {
-        autoplay: true,
-        controls: true,
-        responsive: true,
-        fluid: true,
-        aspectRatio: "16:9",
-        liveui: true,
-        sources: [
-          {
-            src: currentStreamUrl,
-            type: "application/x-mpegURL",
-          },
-        ],
-        controlBar: {
-          children: [
-            "playToggle",
-            "volumePanel",
-            "liveDisplay",
-            "pictureInPictureToggle",
-            "fullscreenToggle",
-          ],
-        },
-      },
-      () => {
-        // Player ready
-      }
-    ));
-
-    player.on("error", () => {
-      const err = player.error();
-      console.warn("Video.js playback error:", err);
-      if (!isUsingBackup && activeChannel.backupUrl) {
-        setIsUsingBackup(true);
-      } else {
-        setPlayerError("Stream is temporarily offline or restricted by ISP. Try another channel.");
-      }
-    });
-
-    return () => {
-      if (playerRef.current) {
-        playerRef.current.dispose();
-        playerRef.current = null;
-      }
-    };
-  }, [activeChannel, isUsingBackup, currentStreamUrl]);
-
   const handleChannelSelect = (channel: LiveTvChannel) => {
     setIsUsingBackup(false);
-    setPlayerError(null);
     setActiveChannel(channel);
-    // Smooth scroll to player on mobile
-    if (window.innerWidth < 768 && videoRef.current) {
-      videoRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  const handleRetryStream = () => {
-    setPlayerError(null);
-    if (playerRef.current && currentStreamUrl) {
-      playerRef.current.src({
-        src: currentStreamUrl,
-        type: "application/x-mpegURL",
-      });
-      playerRef.current.play().catch(() => {});
+    // Smooth scroll to top on mobile
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      window.scrollTo({ top: 100, behavior: "smooth" });
     }
   };
 
@@ -197,35 +112,13 @@ export default function LiveTvPage() {
       {activeChannel && (
         <div className="mb-10 bg-cinema-900/90 border border-cinema-800 rounded-2xl overflow-hidden shadow-2xl">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
-            {/* Player Container */}
+            {/* Dynamic Live Player */}
             <div className="lg:col-span-2 bg-black relative aspect-video flex items-center justify-center">
-              <div ref={videoRef} className="w-full h-full" />
-
-              {/* Error Overlay */}
-              {playerError && (
-                <div className="absolute inset-0 bg-cinema-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-10">
-                  <AlertCircle className="w-12 h-12 text-rose-500 mb-3" />
-                  <h3 className="text-lg font-bold text-white mb-1">Stream Error</h3>
-                  <p className="text-xs text-cinema-muted max-w-md mb-4">{playerError}</p>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={handleRetryStream}
-                      className="inline-flex items-center space-x-1.5 bg-cinema-red hover:bg-cinema-red-hover text-white text-xs font-semibold px-4 py-2 rounded-lg transition"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5" />
-                      <span>Retry Playback</span>
-                    </button>
-                    {activeChannel.backupUrl && !isUsingBackup && (
-                      <button
-                        onClick={() => setIsUsingBackup(true)}
-                        className="bg-cinema-800 hover:bg-cinema-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition"
-                      >
-                        Try Backup Stream
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
+              <LivePlayer
+                channel={activeChannel}
+                isUsingBackup={isUsingBackup}
+                onToggleBackup={() => setIsUsingBackup(!isUsingBackup)}
+              />
             </div>
 
             {/* Current Channel Info Sidebar */}
@@ -289,10 +182,7 @@ export default function LiveTvPage() {
               <div className="mt-5 pt-4 border-t border-cinema-800/80 space-y-2">
                 {activeChannel.backupUrl && (
                   <button
-                    onClick={() => {
-                      setIsUsingBackup(!isUsingBackup);
-                      setPlayerError(null);
-                    }}
+                    onClick={() => setIsUsingBackup(!isUsingBackup)}
                     className="w-full py-2 px-3 text-xs font-semibold rounded-lg bg-cinema-800 hover:bg-cinema-700 text-slate-200 transition flex items-center justify-center gap-2"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
