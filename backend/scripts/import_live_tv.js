@@ -35,11 +35,15 @@ function parseM3U(content, repoTag) {
       current = { sourceRepo: repoTag };
       const logoMatch = line.match(/tvg-logo="([^"]+)"/i);
       const groupMatch = line.match(/group-title="([^"]+)"/i);
-      const nameMatch = line.match(/,\s*(.+)$/);
+
+      // Channel name in M3U is after the last comma
+      const lastCommaIdx = line.lastIndexOf(',');
+      let rawName = lastCommaIdx !== -1 ? line.substring(lastCommaIdx + 1).trim() : 'Unknown Channel';
+      rawName = rawName.replace(/^["'\s]+|["'\s]+$/g, '');
 
       current.logo = logoMatch ? logoMatch[1].trim() : null;
       current.group = groupMatch ? groupMatch[1].trim() : 'General';
-      current.name = nameMatch ? nameMatch[1].trim() : 'Unknown Channel';
+      current.name = rawName;
     } else if (line.startsWith('http://') || line.startsWith('https://')) {
       if (current) {
         current.url = line;
@@ -213,7 +217,8 @@ function normalizeCategory(groupName, channelName) {
 }
 
 function cleanChannelName(rawName) {
-  let name = rawName.replace(/\[LIVE\]|\[HD\]|\(720p\)|\(1080p\)|\(576p\)|\(480p\)|HDTC|FHD|UHD|4K|BDIX|♛/gi, '');
+  let name = rawName.replace(/\[LIVE\]|\[HD\]|\[BD\]|\(720p\)|\(1080p\)|\(576p\)|\(480p\)|HDTC|FHD|UHD|4K|BDIX|♛/gi, '');
+  name = name.replace(/^["'\s]+|["'\s]+$/g, '');
   name = name.replace(/\s+/g, ' ').trim();
   return name;
 }
