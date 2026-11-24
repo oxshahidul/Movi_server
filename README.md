@@ -1,6 +1,6 @@
 # NexFlix — Full-Stack Entertainment & Streaming Platform
 
-**NexFlix** is a high-performance cinema entertainment streaming platform inspired by modern streaming portals like [iScreen.com.bd](https://iscreen.com.bd/) and BDIX cinema hubs. Built with a responsive **Next.js 14 + TypeScript** frontend, **Node.js + Express** REST API backend, **Prisma ORM**, and **MySQL (managed locally via XAMPP)**.
+**NexFlix** is a high-performance cinema entertainment streaming platform inspired by modern streaming portals like [iScreen.com.bd] and BDIX cinema hubs. Built with a responsive **Next.js 14 + TypeScript** frontend, **Node.js + Express** REST API backend, **Prisma ORM**, and **MySQL (managed locally via XAMPP)**.
 
 ---
 
