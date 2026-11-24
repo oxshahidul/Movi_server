@@ -1,15 +1,16 @@
-# ScreenBox — Full-Stack Entertainment & Streaming Platform
+# NexFlix — Full-Stack Entertainment & Streaming Platform
 
-Recreation of the **ScreenBox** entertainment streaming platform (inspired by [screenboxbd.online](https://www.screenboxbd.online/)) built with a modern, responsive **Next.js + TypeScript** frontend, **Node.js + Express** REST API backend, **Prisma ORM**, and **MySQL (managed locally via XAMPP)**.
+**NexFlix** is a high-performance cinema entertainment streaming platform inspired by modern streaming portals like [iScreen.com.bd](https://iscreen.com.bd/) and BDIX cinema hubs. Built with a responsive **Next.js 14 + TypeScript** frontend, **Node.js + Express** REST API backend, **Prisma ORM**, and **MySQL (managed locally via XAMPP)**.
 
 ---
 
 ## 🚀 Key Features
 
-- **Cinematic Dark UI**: Dark slate & crimson cinema aesthetic styled with Tailwind CSS, custom responsive aspect ratios (2:3 posters, 16:9 backdrops), and fluid scroll carousels.
-- **Bufferless HLS/MP4 Streaming**: Custom Video.js player with HLS (`.m3u8`) streaming, multi-server selection, subtitle support, playback speed, picture-in-picture, and keyboard shortcuts (Space, M, F, Arrow keys).
+- **iScreen-Inspired Modern UI**: Dark slate & crimson cinema aesthetic styled with Tailwind CSS, custom responsive aspect ratios (2:3 posters, 16:9 backdrops), and fluid scroll carousels.
+- **Top 10 in Bangladesh**: High-visibility ranked carousel featuring oversized outlined rank typography (`1` to `10`) overlapping poster cards.
+- **Bufferless HLS/MP4 & Live TV**: Dual streaming engines with custom Video.js and `hls.js` low-latency tuning, multi-server selection, subtitle support, playback speed, picture-in-picture, and keyboard shortcuts.
 - **Playback Resume Engine**: Automatically saves playback timestamps to MySQL via heartbeat API every 10 seconds. Prompts or auto-resumes from exact pause points when returning.
-- **TV Series & Episode Navigator**: Complete season and episode switcher with thumbnail previews and next-episode transitions.
+- **TV Series & Horizontal Episode Carousel**: Complete season and episode switcher with mousewheel-scrollable horizontal thumbnail carousel and next-episode transitions.
 - **Universal Search**: Real-time debounced search across movies, series, actors, and genres.
 - **Personal Library**: Saved Watchlist, Favorites, and Continue Watching shelf.
 - **Authentication & RBAC**: Secure JWT auth with HTTP-only cookies, password hashing (`bcryptjs`), and role access controls (`SUPER_ADMIN`, `ADMIN`, `CONTENT_MANAGER`, `USER`).
@@ -24,7 +25,7 @@ Recreation of the **ScreenBox** entertainment streaming platform (inspired by [s
 | **Frontend** | Next.js 14 (App Router) + React + TypeScript | Modern client UI and routing |
 | **Styling** | Tailwind CSS + Lucide Icons | Responsive cinema dark theme |
 | **State Management** | TanStack Query + Zustand | Server-state caching & global player stores |
-| **Video Player** | Video.js + HLS Support | Video streaming & playback controls |
+| **Video Players** | Video.js + hls.js | On-demand cinema video and low-latency Live TV streaming |
 | **Backend API** | Node.js + Express.js + TypeScript | REST API with modular MVC architecture |
 | **Database** | MySQL (XAMPP for local development) | Normalized relational database on port 3306 |
 | **Database ORM** | Prisma ORM | Type-safe migrations, queries, and seeder |
@@ -88,22 +89,22 @@ Visit **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 | Role | Email | Password | Access |
 |---|---|---|---|
-| **Super Admin** | `admin@screenbox.com` | `admin123` | Full access, Admin Portal (`/admin`), Movie CRUD |
-| **Standard User** | `user@screenbox.com` | `user123` | Streaming, Watchlist, Favorites, Watch History |
+| **Super Admin** | `admin@nexflix.com` | `admin123` | Full access, Admin Portal (`/admin`), Content CRUD |
+| **Standard User** | `user@nexflix.com` | `user123` | Streaming, Watchlist, Favorites, Watch History |
 
 ---
 
 ## 📁 Directory Structure
 
 ```text
-movi box/
+nexflix/
 ├── backend/
 │   ├── prisma/
 │   │   ├── schema.prisma       # Complete 18-model normalized MySQL schema
 │   │   └── seed.ts             # Initial movies, series, episodes & test users
 │   ├── src/
 │   │   ├── config/             # Environment & port variables
-│   │   ├── controllers/        # Auth, Movies, Series, Library, Admin, Search
+│   │   ├── controllers/        # Auth, Movies, Series, Live TV, Admin, Search
 │   │   ├── middleware/         # JWT auth, error handling, role checks
 │   │   ├── routes/             # Express API router definitions
 │   │   ├── app.ts              # Express app bootstrap
@@ -114,16 +115,17 @@ movi box/
 ├── frontend/
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── page.tsx        # Cinema home (Hero, Carousels, Continue Watching)
+│   │   │   ├── page.tsx        # Cinema home (Hero, Top 10, Carousels, Continue Watching)
 │   │   │   ├── movies/         # Movies catalog & genre filters
 │   │   │   ├── series/         # TV Series catalog & seasons
+│   │   │   ├── live/           # Low-Latency Live TV Studio
 │   │   │   ├── movie/[slug]/   # Movie detail & backdrop page
 │   │   │   ├── series/[slug]/  # Series detail & episode list
-│   │   │   ├── watch/          # Video.js player views for Movies & Series
+│   │   │   ├── watch/          # Video player views with episode carousel
 │   │   │   ├── search/         # Live debounced search page
 │   │   │   ├── library/        # User Watchlist & Favorites
 │   │   │   └── admin/          # Management portal & stats dashboard
-│   │   ├── components/         # Navbar, HeroBanner, ContentRow, MovieCard, Player
+│   │   ├── components/         # NexFlixLogo, HeroBanner, TopTenRow, ContentRow, Players
 │   │   ├── store/              # Zustand Auth & Player state stores
 │   │   └── types/              # Full TypeScript model definitions
 │   ├── Dockerfile
