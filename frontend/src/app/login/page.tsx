@@ -49,7 +49,7 @@ export default function LoginPage() {
           <div className="w-12 h-12 rounded-2xl bg-cinema-red mx-auto flex items-center justify-center shadow-lg shadow-cinema-red/30">
             <Film className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-black text-white">Sign In to ScreenBox</h1>
+          <h1 className="text-2xl font-black text-white">Sign In to NexFlix</h1>
           <p className="text-xs text-cinema-muted">Access bufferless BDIX cinema streaming</p>
         </div>
 
@@ -92,7 +92,7 @@ export default function LoginPage() {
           </div>
 
           <div className="text-[11px] text-cinema-muted bg-cinema-950/70 p-3 rounded-xl border border-cinema-800">
-            💡 Demo user: <span className="text-white font-mono">user@screenbox.com</span> / <span className="text-white font-mono">user123</span>
+            💡 Demo user: <span className="text-white font-mono">user@nexflix.com</span> / <span className="text-white font-mono">user123</span>
           </div>
 
           <button

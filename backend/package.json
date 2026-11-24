@@ -9,6 +9,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "import:samonline": "node scripts/import_samonline_movies.js",
+    "import:korean-series": "node scripts/import_korean_series.js",
+    "import:tv-series": "node scripts/import_tv_web_series.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "ts-node-dev prisma/seed.ts",

@@ -30,19 +30,20 @@ export default function ContentRow({ title, subtitle, viewAllHref, children }: C
       {/* Header */}
       <div className="flex items-end justify-between mb-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center space-x-2">
-            <span className="w-1.5 h-6 bg-cinema-red rounded-full inline-block" />
+          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center space-x-2.5">
+            <span className="w-1.5 h-6 bg-[#e50914] rounded-full inline-block" />
             <span>{title}</span>
           </h2>
-          {subtitle && <p className="text-xs text-cinema-muted mt-0.5">{subtitle}</p>}
+          {subtitle && <p className="text-xs text-slate-400 mt-1 font-medium">{subtitle}</p>}
         </div>
 
         {viewAllHref && (
           <Link
             href={viewAllHref}
-            className="text-xs font-semibold text-cinema-red hover:text-cinema-red-hover transition"
+            className="text-xs font-bold text-slate-300 hover:text-[#ff4d58] transition flex items-center space-x-1"
           >
-            View All →
+            <span>See All</span>
+            <span>→</span>
           </Link>
         )}
       </div>

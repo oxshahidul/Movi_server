@@ -14,7 +14,7 @@ export default function LiveTvChannelCard({ channel }: LiveTvChannelCardProps) {
 
   return (
     <Link
-      href="/live"
+      href={`/live?channel=${channel.slug}`}
       className="flex-none w-36 sm:w-44 group cursor-pointer"
     >
       <div className="relative aspect-video rounded-xl bg-cinema-900 border border-cinema-800 p-3 flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:border-cinema-red group-hover:shadow-lg group-hover:shadow-cinema-red/20">

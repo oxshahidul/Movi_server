@@ -5,9 +5,9 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 export const metadata: Metadata = {
-  title: "ScreenBox — Cinema-Grade Streaming & Entertainment",
+  title: "NexFlix — Premium BDIX Cinema & Live Streaming",
   description:
-    "Recreation of ScreenBox: Browse movies, binge TV series, experience bufferless HLS playback, continue watching across devices.",
+    "Stream the latest blockbuster movies, binge TV series, and bufferless live TV on NexFlix.",
 };
 
 export default function RootLayout({

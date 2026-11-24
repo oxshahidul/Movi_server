@@ -78,6 +78,7 @@ function MovieWatchContent({ params }: { params: { slug: string } }) {
           sourceFormat={selectedSource?.format || "HLS"}
           poster={movie.backdrop || movie.poster || undefined}
           title={movie.title}
+          runtimeMinutes={movie.runtime || undefined}
           contentType="MOVIE"
           contentId={movie.id}
           initialTime={initialResumeTime}

@@ -145,9 +145,9 @@ export default function AuthModal() {
 
           {authModalTab === "login" && (
             <div className="text-[11px] text-cinema-muted bg-cinema-950/60 p-2.5 rounded-lg border border-cinema-800">
-              💡 Demo login: <span className="text-white font-mono">user@screenbox.com</span> / <span className="text-white font-mono">user123</span>
+              💡 Demo login: <span className="text-white font-mono">user@nexflix.com</span> / <span className="text-white font-mono">user123</span>
               <br />
-              Admin: <span className="text-white font-mono">admin@screenbox.com</span> / <span className="text-white font-mono">admin123</span>
+              Admin: <span className="text-white font-mono">admin@nexflix.com</span> / <span className="text-white font-mono">admin123</span>
             </div>
           )}
 

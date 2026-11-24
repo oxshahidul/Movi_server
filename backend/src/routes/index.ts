@@ -25,7 +25,7 @@ router.get("/health", async (_req, res) => {
     await prisma.$queryRaw`SELECT 1`;
     res.json({
       status: "healthy",
-      service: "screenbox-api",
+      service: "nexflix-api",
       version: "1.0.0",
       database: "connected",
       timestamp: new Date().toISOString(),
@@ -33,7 +33,7 @@ router.get("/health", async (_req, res) => {
   } catch (error: any) {
     res.status(503).json({
       status: "degraded",
-      service: "screenbox-api",
+      service: "nexflix-api",
       database: "disconnected",
       error: error.message,
       timestamp: new Date().toISOString(),
@@ -53,7 +53,7 @@ router.get("/metrics", async (_req, res) => {
     ]);
 
     res.json({
-      service: "screenbox-api",
+      service: "nexflix-api",
       uptimeSeconds: uptime,
       memory: {
         rssMb: (memory.rss / (1024 * 1024)).toFixed(2),

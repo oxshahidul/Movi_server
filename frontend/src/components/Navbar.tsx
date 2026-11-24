@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Film, Search, User, LogOut, Shield, Heart, Bookmark, ChevronDown, Menu, X } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
+import NexFlixLogo from "./NexFlixLogo";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -23,6 +24,11 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Do not render consumer navbar on admin portal routes
+  if (pathname && pathname.startsWith("/admin")) {
+    return null;
+  }
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,18 +58,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
         {/* Left: Brand Logo & Navigation */}
         <div className="flex items-center space-x-8">
-          <Link href="/" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cinema-red to-rose-700 flex items-center justify-center shadow-lg shadow-cinema-red/30 group-hover:scale-105 transition-transform">
-              <Film className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-extrabold text-xl tracking-wider text-white">
-                SCREEN<span className="text-cinema-red">BOX</span>
-              </span>
-              <span className="text-[10px] text-cinema-muted -mt-1 tracking-widest font-semibold uppercase">
-                BDIX Cinema
-              </span>
-            </div>
+          <Link href="/" className="flex items-center group">
+            <NexFlixLogo size="md" className="group-hover:scale-105 transition-transform" />
           </Link>
 
           {/* Desktop Nav Links */}

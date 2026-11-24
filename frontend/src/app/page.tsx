@@ -5,6 +5,7 @@ import MovieCard from "../components/MovieCard";
 import SeriesCard from "../components/SeriesCard";
 import LiveTvChannelCard from "../components/LiveTvChannelCard";
 import ContinueWatchingRow from "../components/ContinueWatchingRow";
+import TopTenRow from "../components/TopTenRow";
 import { Movie, Series, LiveTvChannel } from "../types";
 
 export const dynamic = "force-dynamic";
@@ -15,8 +16,8 @@ async function getHomeData() {
   try {
     const [featuredRes, moviesRes, seriesRes, southRes, liveRes] = await Promise.all([
       fetch(`${API_BASE_URL}/movies/featured`, { cache: "no-store" }).then((r) => r.json()),
-      fetch(`${API_BASE_URL}/movies?limit=12`, { cache: "no-store" }).then((r) => r.json()),
-      fetch(`${API_BASE_URL}/series?limit=12`, { cache: "no-store" }).then((r) => r.json()),
+      fetch(`${API_BASE_URL}/movies?limit=16`, { cache: "no-store" }).then((r) => r.json()),
+      fetch(`${API_BASE_URL}/series?limit=16`, { cache: "no-store" }).then((r) => r.json()),
       fetch(`${API_BASE_URL}/movies?genre=south-indian&limit=12`, { cache: "no-store" }).then((r) => r.json()),
       fetch(`${API_BASE_URL}/live-tv/featured`, { cache: "no-store" }).then((r) => r.json()).catch(() => ({ data: [] })),
     ]);
@@ -36,42 +37,41 @@ async function getHomeData() {
 
 export default async function HomePage() {
   const { featured, movies, series, southMovies, liveChannels } = await getHomeData();
-  const spotlightMovie = featured[0] || movies[0];
+
+  // Combine top-rated movies & popular series for Top 10 Bangladesh section
+  const topTenItems: any[] = [];
+  const movieSlice = (movies.length > 0 ? movies : featured).slice(0, 6);
+  const seriesSlice = series.slice(0, 4);
+
+  movieSlice.forEach((m) => topTenItems.push({ ...m, type: "MOVIE" }));
+  seriesSlice.forEach((s) => topTenItems.push({ ...s, type: "SERIES" }));
+  // Sort by rating or default
+  topTenItems.sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
+
+  // Hero carousel movies: featured or first few movies
+  const heroMovies = featured.length > 0 ? featured : movies.slice(0, 5);
 
   // Filter Bangla originals
   const banglaMovies = movies.filter((m) =>
-    m.genres.some((g) => g.slug === "bangla-originals") || m.language === "Bengali"
+    m.genres?.some((g) => g.slug === "bangla-originals") || m.language === "Bengali"
   );
   const banglaSeries = series.filter((s) =>
-    s.genres.some((g) => g.slug === "bangla-originals")
+    s.genres?.some((g) => g.slug === "bangla-originals")
   );
 
   return (
-    <div className="pb-12">
-      {/* 1. Immersive Hero Banner */}
-      {spotlightMovie && <HeroBanner movie={spotlightMovie} />}
+    <div className="pb-16 bg-neutral-950 min-h-screen">
+      {/* 1. iScreen-Style Hero Banner Carousel */}
+      {heroMovies.length > 0 && <HeroBanner movies={heroMovies} />}
 
       {/* 2. Continue Watching (Client Session Driven) */}
       <ContinueWatchingRow />
 
-      {/* Live TV Channels Row */}
-      {liveChannels.length > 0 && (
-        <ContentRow
-          title="Live Television & Sports"
-          subtitle="Bufferless BDIX live broadcast with direct stream switching"
-          viewAllHref="/live"
-        >
-          {liveChannels.map((c) => (
-            <LiveTvChannelCard key={c.id} channel={c} />
-          ))}
-        </ContentRow>
-      )}
-
-      {/* 3. Trending Movies Carousel */}
+      {/* 3. New Release / Trending Blockbusters */}
       {movies.length > 0 && (
         <ContentRow
-          title="Trending Blockbusters"
-          subtitle="Top streamed movies right now"
+          title="New Releases & Blockbusters"
+          subtitle="Top streamed movies right now on NexFlix"
           viewAllHref="/movies"
         >
           {movies.map((m) => (
@@ -80,11 +80,27 @@ export default async function HomePage() {
         </ContentRow>
       )}
 
-      {/* 4. Popular TV Series Carousel */}
+      {/* 4. Top 10 in Bangladesh (iScreen-Style Large Outlined Numbering) */}
+      {topTenItems.length > 0 && <TopTenRow items={topTenItems} />}
+
+      {/* 5. Live Television & Sports */}
+      {liveChannels.length > 0 && (
+        <ContentRow
+          title="Live TV & Sports"
+          subtitle="Bufferless BDIX live broadcast with low-latency tuning"
+          viewAllHref="/live"
+        >
+          {liveChannels.map((c) => (
+            <LiveTvChannelCard key={c.id} channel={c} />
+          ))}
+        </ContentRow>
+      )}
+
+      {/* 6. Popular TV Series Carousel */}
       {series.length > 0 && (
         <ContentRow
           title="Binge-Worthy Series"
-          subtitle="Complete seasons with full episodes"
+          subtitle="Complete seasons with full HD episodes"
           viewAllHref="/series"
         >
           {series.map((s) => (
@@ -93,7 +109,7 @@ export default async function HomePage() {
         </ContentRow>
       )}
 
-      {/* 5. South Indian Blockbusters Carousel */}
+      {/* 7. South Indian Blockbusters Carousel */}
       {southMovies.length > 0 && (
         <ContentRow
           title="South Indian Blockbusters"
@@ -106,7 +122,7 @@ export default async function HomePage() {
         </ContentRow>
       )}
 
-      {/* 5. Bangla Originals & Regional Cinema */}
+      {/* 8. Bangla Originals & Regional Cinema */}
       {(banglaMovies.length > 0 || banglaSeries.length > 0) && (
         <ContentRow
           title="Bangla Originals & BDIX Hits"
@@ -117,19 +133,6 @@ export default async function HomePage() {
           ))}
           {banglaSeries.map((s) => (
             <SeriesCard key={s.id} series={s} />
-          ))}
-        </ContentRow>
-      )}
-
-      {/* 6. Top Rated Movies Spotlight */}
-      {featured.length > 1 && (
-        <ContentRow
-          title="Critically Acclaimed"
-          subtitle="Highest IMDb community ratings"
-          viewAllHref="/movies?sortBy=rating"
-        >
-          {featured.slice(1).map((m) => (
-            <MovieCard key={m.id} movie={m} />
           ))}
         </ContentRow>
       )}

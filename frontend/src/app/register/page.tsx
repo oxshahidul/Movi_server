@@ -50,7 +50,7 @@ export default function RegisterPage() {
           <div className="w-12 h-12 rounded-2xl bg-cinema-red mx-auto flex items-center justify-center shadow-lg shadow-cinema-red/30">
             <Film className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-2xl font-black text-white">Create ScreenBox Account</h1>
+          <h1 className="text-2xl font-black text-white">Create NexFlix Account</h1>
           <p className="text-xs text-cinema-muted">Join the entertainment streaming platform</p>
         </div>
 

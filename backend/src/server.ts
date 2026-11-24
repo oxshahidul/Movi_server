@@ -11,7 +11,7 @@ const startServer = async () => {
     console.log("✅ Connected to XAMPP MySQL (screenbox_db)");
 
     app.listen(config.port, () => {
-      console.log(`🚀 ScreenBox API server listening on http://localhost:${config.port}`);
+      console.log(`🚀 NexFlix API server listening on http://localhost:${config.port}`);
       console.log(`📡 Healthcheck available at http://localhost:${config.port}/api/v1/health`);
     });
   } catch (error) {

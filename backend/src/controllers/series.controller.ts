@@ -7,7 +7,7 @@ export const getSeries = async (req: AuthRequest, res: Response): Promise<void> 
   try {
     const page = parseInt(req.query.page as string, 10) || 1;
     const limit = parseInt(req.query.limit as string, 10) || 16;
-    const genre = req.query.genre as string;
+    const categorySlug = (req.query.category || req.query.genre) as string;
     const search = req.query.search as string;
     const skip = (page - 1) * limit;
 
@@ -22,11 +22,11 @@ export const getSeries = async (req: AuthRequest, res: Response): Promise<void> 
       ];
     }
 
-    if (genre) {
+    if (categorySlug && categorySlug !== "all") {
       where.genres = {
         some: {
           genre: {
-            slug: genre,
+            slug: categorySlug,
           },
         },
       };
@@ -175,5 +175,54 @@ export const getSeriesBySlug = async (req: AuthRequest, res: Response): Promise<
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to fetch series details" });
+  }
+};
+
+export const getSeriesCategories = async (_req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const targetSlugs = [
+      "tv-web-series",
+      "korean-tv-web-series",
+      "cartoon-tv-series",
+      "documentary",
+      "wwe-aew-wrestling",
+      "award-tv-shows",
+    ];
+
+    const categories = await prisma.genre.findMany({
+      where: {
+        slug: { in: targetSlugs },
+      },
+      include: {
+        _count: {
+          select: { series: true },
+        },
+      },
+    });
+
+    const ordered = targetSlugs.map((slug) => {
+      const match = categories.find((c) => c.slug === slug);
+      if (match) {
+        return {
+          id: match.id,
+          name: match.name,
+          slug: match.slug,
+          count: match._count.series,
+        };
+      }
+      return {
+        id: 0,
+        name: slug.replace(/-/g, " ").toUpperCase(),
+        slug,
+        count: 0,
+      };
+    });
+
+    res.json({
+      success: true,
+      data: ordered,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to fetch series categories" });
   }
 };

@@ -26,6 +26,12 @@ import {
   getUsers,
   updateUserRole,
   updateUserStatus,
+  getDashboardMetrics,
+  getAdminLiveChannels,
+  toggleChannelStatus,
+  getAdminMovies,
+  toggleMovieStatus,
+  pingTelemetry,
 } from "../controllers/admin.controller";
 import { authenticate, requireRole } from "../middleware/auth.middleware";
 import { RoleType } from "@prisma/client";
@@ -47,8 +53,16 @@ const router = Router();
 router.use(authenticate);
 router.use(requireRole([RoleType.SUPER_ADMIN, RoleType.ADMIN, RoleType.CONTENT_MANAGER]));
 
-// Stats & Audit
+// Stats & Metrics Hub
 router.get("/stats", getStats);
+router.get("/dashboard-metrics", getDashboardMetrics);
+router.get("/telemetry/ping", pingTelemetry);
+
+// Admin Dual Table Endpoints
+router.get("/live-tv", getAdminLiveChannels);
+router.patch("/live-tv/:id/toggle", toggleChannelStatus);
+router.get("/movies", getAdminMovies);
+router.patch("/movies/:id/toggle", toggleMovieStatus);
 
 // Movie Management
 router.post("/movies", validateBody(createMovieSchema), createMovie);
